@@ -1,0 +1,13 @@
+name: Pull Request
+
+on:
+  workflow_call:
+
+jobs:
+  pull-request-public:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull Request 🚦
+        run: |
+          curl -s -X POST -H "Authorization: token ${{ secrets.PAT_ORGANIZATION }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ secrets.OWNER_ORGANIZATION }}/${{ secrets.REPOSITORY_PUBLIC }}/pulls -d "{\"title\":\"Auto Update Version\",\"head\":\"auto-update-version\",\"base\":\"master\"}"
+          echo "Pull Request created"

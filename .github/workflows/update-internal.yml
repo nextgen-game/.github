@@ -1,0 +1,38 @@
+name: push public files to public repo 🚀
+
+on:
+  workflow_call:
+
+jobs:
+  update-public-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go 🍱
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.17.0'
+
+      - name: Clone public repository 🧑‍💻
+        uses: GuillaumeFalourd/clone-github-repo-action@v2.3
+        with:
+          owner: ${{ secrets.OWNER_ORGANIZATION }}
+          repository: ${{ secrets.REPOSITORY_INTERNAL }}
+          branch: master
+          access-token: ${{ secrets.PAT_ORGANIZATION }}
+
+      - name: Copy public files 📁
+        run: |
+          rsync -r --exclude-from='dino.ignore' ./* ./${{ secrets.REPOSITORY_INTERNAL }}
+
+      - name: push public files to public repo 🚀
+        run: |
+          cd ${{ secrets.REPOSITORY_INTERNAL }}
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git checkout -b "auto-update-version"
+          git add .
+          git commit -m "auto-update-version"
+          git push origin "auto-update-version"
